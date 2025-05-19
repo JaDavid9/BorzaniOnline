@@ -261,9 +261,7 @@ def ostavi_vest():
 
     # Ako je GET metoda, samo prikaži formu
     return render_template('ostavi_vest.html')
-@app.route('/')
-def home_redirect():
-    return render_template('sve_vesti.html')
+
 
 if __name__ == '__main__':
     print("Pokrećem Flask server...")
