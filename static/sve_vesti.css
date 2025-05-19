@@ -394,15 +394,3 @@ footer {
     color: #007bff;
 }
 
-/* Ovo omogućava da kartice izgledaju dobro na manjim ekranima */
-@media (max-width: 768px) {
-    .kartica-sa-naslovom {
-        flex: 1 1 48%; /* 2 kartice po redu na manjim ekranima */
-    }
-}
-
-@media (max-width: 480px) {
-    .kartica-sa-naslovom {
-        flex: 1 1 100%; /* 1 kartica po redu na vrlo malim ekranima */
-    }
-}

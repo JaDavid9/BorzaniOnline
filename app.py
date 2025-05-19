@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from sqlalchemy import or_, and_, func  # ✅ Ispravni SQL funkcije
+from sqlalchemy import or_, and_, func
 
 load_dotenv()
 
@@ -80,8 +80,8 @@ def postavi_vest():
     if request.method == 'POST':
         naslov = request.form['naslov']
         sadrzaj = request.form['sadrzaj']
-        target_pages = request.form.getlist('target_pages')
-        datum_vreme = request.form['datum_vreme']  # uzimamo iz forme!
+        target_pages = [tp.lower() for tp in request.form.getlist('target_pages')]  # mala slova
+        datum_vreme = request.form['datum_vreme']
 
         slike_paths = []
         for slika in request.files.getlist('slike'):
@@ -110,16 +110,29 @@ def postavi_vest():
         db.session.add(nova_vest)
         db.session.commit()
 
-        return redirect(url_for('dashboard'))
+        return redirect(url_for('postavi_vest'))
 
     return render_template('postavi_vest.html')
 
-@app.route('/sve_vesti')
+@app.route('/BorzaniOnline')
 def sve_vesti():
+    search_query = request.args.get('search', '').lower()
     vesti_sve = Vest.query.order_by(Vest.datum_vreme.desc()).all()
-    dozvoljene_stranice = ["Naslovna", "Vesti"]
-    vesti = [v for v in vesti_sve if any(page in v.target_pages for page in dozvoljene_stranice)]
-    return render_template('sve_vesti.html', vesti=vesti, search_query=None)
+
+    # Filtriranje u Pythonu za ove target pages
+    valid_pages = ['naslovna', 'vesti', 'najnovije', 'lokalne vesti', 'sport', 'vremenska prognoza']
+    def filter_vest(vest):
+        if not vest.target_pages:
+            return False
+        pages_lower = [tp.lower() for tp in vest.target_pages]
+        if not any(p in pages_lower for p in valid_pages):
+            return False
+        if search_query:
+            return search_query in vest.naslov.lower() or search_query in vest.sadrzaj.lower()
+        return True
+
+    vesti = [v for v in vesti_sve if filter_vest(v)]
+    return render_template('sve_vesti.html', vesti=vesti)
 
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
@@ -143,6 +156,7 @@ def edit_vest(id):
     if request.method == 'POST':
         vest.naslov = request.form['naslov']
         vest.sadrzaj = request.form['sadrzaj']
+        vest.target_pages = [tp.lower() for tp in request.form.getlist('target_pages')]
         db.session.commit()
         return redirect(url_for('dashboard'))
     return render_template('edit_vest.html', vest=vest)
@@ -150,60 +164,72 @@ def edit_vest(id):
 @app.route('/vesti')
 def vesti():
     search_query = request.args.get('search', '').lower()
-    if search_query:
-        vesti = Vest.query.filter(
-            or_(
-                func.lower(Vest.naslov).contains(search_query),
-                func.lower(Vest.sadrzaj).contains(search_query)
-            )
-        ).order_by(Vest.datum_vreme.desc()).all()
-    else:
-        vesti = Vest.query.filter(Vest.target_pages.contains(['vesti'])).order_by(Vest.datum_vreme.desc()).all()
-    return render_template('vesti.html', vesti=vesti)
+    sve_vesti = Vest.query.order_by(Vest.datum_vreme.desc()).all()
+
+    def filter_vest(vest):
+        if not vest.target_pages:
+            return False
+        pages_lower = [tp.lower() for tp in vest.target_pages]
+        if 'vesti' not in pages_lower:
+            return False
+        if search_query:
+            return search_query in vest.naslov.lower() or search_query in vest.sadrzaj.lower()
+        return True
+
+    vesti_filtered = [v for v in sve_vesti if filter_vest(v)]
+    return render_template('vesti.html', vesti=vesti_filtered, search_query=search_query)
 
 @app.route('/najnovije')
 def najnovije():
-    vesti = Vest.query.filter(Vest.target_pages.contains(['najnovije'])).order_by(Vest.datum_vreme.desc()).all()
-    return render_template('najnovije.html', vesti=vesti)
+    sve_vesti = Vest.query.order_by(Vest.datum_vreme.desc()).all()
+
+    vesti_filtered = [v for v in sve_vesti if v.target_pages and 'najnovije' in [tp.lower() for tp in v.target_pages]]
+
+    return render_template('najnovije.html', vesti=vesti_filtered)
 
 @app.route('/lokalne_vesti')
 def lokalne_vesti():
-    vesti = Vest.query.filter(Vest.target_pages.contains(['lokalne_vesti'])).order_by(Vest.datum_vreme.desc()).all()
-    return render_template('lokalne_vesti.html', vesti=vesti)
+    sve_vesti = Vest.query.order_by(Vest.datum_vreme.desc()).all()
+
+    vesti_filtered = [v for v in sve_vesti if v.target_pages and 'lokalne vesti' in [tp.lower() for tp in v.target_pages]]
+
+    return render_template('lokalne_vesti.html', vesti=vesti_filtered)
 
 @app.route('/sport')
 def sport():
     search_query = request.args.get('search', '').lower()
-    if search_query:
-        vesti = Vest.query.filter(
-            and_(
-                or_(
-                    func.lower(Vest.naslov).contains(search_query),
-                    func.lower(Vest.sadrzaj).contains(search_query)
-                ),
-                Vest.target_pages.contains(['sport'])
-            )
-        ).order_by(Vest.datum_vreme.desc()).all()
-    else:
-        vesti = Vest.query.filter(Vest.target_pages.contains(['sport'])).order_by(Vest.datum_vreme.desc()).all()
-    return render_template('sport.html', vesti=vesti, search_query=search_query)
+    sve_vesti = Vest.query.order_by(Vest.datum_vreme.desc()).all()
+
+    def filter_vest(vest):
+        if not vest.target_pages:
+            return False
+        pages_lower = [tp.lower() for tp in vest.target_pages]
+        if 'sport' not in pages_lower:
+            return False
+        if search_query:
+            return search_query in vest.naslov.lower() or search_query in vest.sadrzaj.lower()
+        return True
+
+    vesti_filtered = [v for v in sve_vesti if filter_vest(v)]
+    return render_template('sport.html', vesti=vesti_filtered, search_query=search_query)
 
 @app.route('/vremenska')
 def vremenska_prognoza():
     search_query = request.args.get('search', '').lower()
-    if search_query:
-        vesti = Vest.query.filter(
-            and_(
-                or_(
-                    func.lower(Vest.naslov).contains(search_query),
-                    func.lower(Vest.sadrzaj).contains(search_query)
-                ),
-                Vest.target_pages.contains(['vremenska'])
-            )
-        ).order_by(Vest.datum_vreme.desc()).all()
-    else:
-        vesti = Vest.query.filter(Vest.target_pages.contains(['vremenska'])).order_by(Vest.datum_vreme.desc()).all()
-    return render_template('vremenska_prognoza.html', vesti=vesti, search_query=search_query)
+    sve_vesti = Vest.query.order_by(Vest.datum_vreme.desc()).all()
+
+    def filter_vest(vest):
+        if not vest.target_pages:
+            return False
+        pages_lower = [tp.lower() for tp in vest.target_pages]
+        if 'vremenska_prognoza' not in pages_lower:
+            return False
+        if search_query:
+            return search_query in vest.naslov.lower() or search_query in vest.sadrzaj.lower()
+        return True
+
+    vesti_filtered = [v for v in sve_vesti if filter_vest(v)]
+    return render_template('vremenska_prognoza.html', vesti=vesti_filtered, search_query=search_query)
 
 @app.route('/kontakt')
 def kontakt():
