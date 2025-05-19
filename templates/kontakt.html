@@ -3,79 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sve Vesti - BorzaniOnline</title>
+    <title>Kontakt - BorzaniOnline</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='sve_vesti.css') }}">
     <style>
-        .menu-toggle {
+        /* Hamburger dugme */
+        .hamburger {
             display: none;
-            font-size: 28px;
+            font-size: 30px;
             cursor: pointer;
+            margin-left: auto;
             padding: 10px;
         }
 
-        .menu-items {
-            display: flex;
-            list-style: none;
-            gap: 10px;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        @media screen and (max-width: 768px) {
-            .menu-toggle {
-                display: block;
-            }
-
-            .menu-items {
+        @media (max-width: 768px) {
+            .navbar {
                 display: none;
                 flex-direction: column;
+                background-color: #f5f5f5;
                 width: 100%;
-                background-color: #f9f9f9;
-                padding: 10px 0;
-                margin: 0;
-            }
-
-            .menu-items.active {
-                display: flex;
-            }
-
-            .menu-items li {
-                text-align: center;
-                margin: 6px 0;
-            }
-
-            .search-form {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
                 padding: 10px;
             }
 
-            .search-form input[type="text"] {
-                width: 80%;
-                padding: 6px;
+            .navbar.active {
+                display: flex;
             }
 
-            .search-form button {
-                margin-top: 6px;
-                padding: 6px 12px;
+            .hamburger {
+                display: block;
+            }
+
+            .navbar ul {
+                flex-direction: column;
+                padding-left: 0;
+            }
+
+            .navbar ul li {
+                margin: 10px 0;
+            }
+
+            .search-form {
+                margin-top: 10px;
+            }
+
+            .logo {
+                max-width: 60px;
+                height: auto;
+            }
+
+            .logo-container h1 {
+                font-size: 20px;
             }
         }
     </style>
 </head>
 <body>
-    <!-- Gornji deo sa logotipom i naslovom -->
     <header>
-        <div class="logo-container">
-            <img src="{{ url_for('static', filename='logo1.png') }}" alt="Logo" class="logo">
-            <h1>BorzaniOnline</h1>
+        <div class="logo-container" style="display: flex; align-items: center; justify-content: space-between;">
+            <div style="display: flex; align-items: center;">
+                <img src="{{ url_for('static', filename='logo1.png') }}" alt="Logo" class="logo" style="max-width: 80px;">
+                <h1 style="margin-left: 10px;">BorzaniOnline</h1>
+            </div>
+            <div class="hamburger" onclick="toggleMenu()">☰</div>
         </div>
-        <br>
 
-        <!-- Navigacioni bar -->
-        <nav class="navbar">
-            <div class="menu-toggle" onclick="toggleMenu()">☰</div>
-            <ul class="menu-items" id="menuItems">
+        <!-- Navigacioni meni -->
+        <nav class="navbar" id="navbar">
+            <ul>
                 <li><a href="{{ url_for('sve_vesti') }}">Naslovna</a></li>
                 <li><a href="{{ url_for('najnovije') }}#vesti">Najnovije</a></li>
                 <li><a href="{{ url_for('lokalne_vesti') }}#vesti">Lokalne vesti</a></li>
@@ -83,18 +76,23 @@
                 <li><a href="{{ url_for('vremenska_prognoza') }}#vesti">Vremenska prognoza</a></li>
                 <li><a href="{{ url_for('kontakt') }}#vesti">Kontakt</a></li>
                 <li><a href="{{ url_for('ostavi_vest') }}#vesti">| Ostavi vest </a></li>
-                <li>
-                    <form action="{{ url_for('sve_vesti') }}" method="GET" class="search-form">
-                        <input type="text" name="search" placeholder="Pretraži vesti..." value="{{ request.args.get('search', '') }}">
-                        <button type="submit">Pretraži</button>
-                    </form>
-                </li>
             </ul>
+
+            <!-- Pretraga -->
+            <form action="{{ url_for('sve_vesti') }}" method="GET" class="search-form">
+                <input type="text" name="search" placeholder="Pretraži vesti..." value="{{ request.args.get('search', '') }}">
+                <button type="submit">Pretraži</button>
+            </form>
         </nav>
-        <br>
     </header>
 
-    <!-- Ovde ide sadržaj stranice -->
+    <main>
+        <section class="kontakt-sadrzaj">
+            <h2>Kontaktirajte nas</h2>
+            <p>Ukoliko imate pitanja, predloge ili želite da ostavite vest, slobodno nas kontaktirajte putem forme ili e-maila.</p>
+            <!-- Ovde možeš ubaciti kontakt formu ako želiš -->
+        </section>
+    </main>
 
     <footer>
         <p>Preuzimanje i objavljivanje tekstova sa portala Radio Borzani Brezovica nije dozvoljeno bez navođenja izvora. Hvala na poštovanju etike novinarske profesije.</p>
@@ -102,8 +100,8 @@
 
     <script>
         function toggleMenu() {
-            const menu = document.getElementById("menuItems");
-            menu.classList.toggle("active");
+            const navbar = document.getElementById('navbar');
+            navbar.classList.toggle('active');
         }
     </script>
 </body>
