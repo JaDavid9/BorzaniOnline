@@ -50,7 +50,8 @@ def allowed_file(filename, allowed_extensions):
 
 @app.route('/')
 def home_redirect():
-    return render_template('sve_vesti.html')
+    vesti = Vest.query.order_by(Vest.datum_vreme.desc()).all()
+    return render_template('sve_vesti.html', vesti=vesti)
 
 @app.route('/login', methods=['POST'])
 def login_post():
