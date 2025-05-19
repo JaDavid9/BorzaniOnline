@@ -52,16 +52,20 @@ def home_redirect():
     vesti = Vest.query.order_by(Vest.datum_vreme.desc()).all()
     return render_template('sve_vesti.html', vesti=vesti)
 
+USERNAME = 'root'
+PASSWORD = 'root'
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        username = request.form['root']
-        password = request.form['root']
+        username = request.form['username']   # obrati pažnju na imena polja
+        password = request.form['password']
         if username == USERNAME and password == PASSWORD:
             session['logged_in'] = True
             return redirect(url_for('dashboard'))
         else:
-            return "Pogrešno korisničko ime ili šifra."
+            flash("Pogrešno korisničko ime ili šifra.", "danger")
+            return redirect(url_for('login'))
     return render_template('login.html')
 
 @app.route('/dashboard')

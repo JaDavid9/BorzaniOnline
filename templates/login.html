@@ -3,13 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <title>Login</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    
     <h1>Borzani-Online</h1>
     <h2>Prijavi se</h2>
-    <form action="{{ url_for('login_post') }}" method="post">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <ul>
+          {% for category, message in messages %}
+            <li style="color: {% if category == 'danger' %}red{% else %}green{% endif %};">{{ message }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+    <form action="{{ url_for('login') }}" method="post">
         <label for="username">Korisničko ime:</label>
         <input type="text" id="username" name="username" required>
         <label for="password">Šifra:</label>
@@ -17,5 +24,4 @@
         <button type="submit">Uloguj se</button>
     </form>
 </body>
-
 </html>
