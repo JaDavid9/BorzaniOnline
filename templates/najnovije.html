@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Kontakt - BorzaniOnline</title>
+    <title>Najnovije Vesti - BorzaniOnline</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='sve_vesti.css') }}" />
     <style>
         /* Osnovni stilovi za navigaciju */
@@ -13,9 +13,24 @@
             padding: 0;
         }
 
-     
+      
 
-        
+        .logo-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo-container img.logo {
+            max-width: 80px;
+            height: auto;
+        }
+
+        .logo-container h1 {
+            margin-left: 10px;
+            font-size: 24px;
+            color: #333;
+        }
 
         /* Navigacija desktop */
         nav#navbar {
@@ -124,23 +139,6 @@
                 color: #333;
             }
         }
-
-        /* Kontakt sekcija */
-        main {
-            padding: 20px;
-            max-width: 900px;
-            margin: 30px auto;
-            font-size: 18px;
-            color: #333;
-        }
-
-        main h2 {
-            margin-bottom: 15px;
-        }
-
-        .kontakt-sadrzaj p {
-            line-height: 1.6;
-        }
     </style>
 </head>
 <body>
@@ -164,20 +162,55 @@
             <li><a href="{{ url_for('ostavi_vest') }}#vesti">| Ostavi vest</a></li>
         </ul>
 
-        <form action="{{ url_for('sve_vesti') }}" method="GET" class="search-form">
+        <form action="{{ url_for('najnovije') }}" method="GET" class="search-form">
             <input type="text" name="search" placeholder="Pretraži vesti..." value="{{ request.args.get('search', '') }}" />
             <button type="submit">Pretraži</button>
         </form>
     </nav>
 </header>
 
-<main>
-    <section class="kontakt-sadrzaj">
-        <h2>Kontaktirajte nas</h2>
-        <p>Ukoliko imate pitanja, predloge ili želite da ostavite vest, slobodno nas kontaktirajte putem forme ili e-maila.</p>
-        <!-- Ovde možeš ubaciti kontakt formu ako želiš -->
-    </section>
-</main>
+<div class="container">
+    <div class="naslovna-stranica">
+        {% if vesti|length > 0 %}
+            <!-- Najnovija vest - velika kartica -->
+            <div class="vest-kartica velika" style="background-image: url('{{ url_for('uploaded_file', filename=vesti[0].slike[0] if vesti[0].slike else 'placeholder.jpg') }}');">
+                <a href="{{ url_for('prikazi_vest', id=vesti[0].id) }}" class="vest-link">
+                    <h2>{{ vesti[0].naslov }}</h2>
+                </a>
+            </div>
+
+            <!-- Ostale najnovije vesti -->
+            <div class="ostale-vesti">
+                {% for vest in vesti[1:10] %}
+                    <div class="vest-kartica mala" style="background-image: url('{{ url_for('uploaded_file', filename=vest.slike[0] if vest.slike else 'placeholder.jpg') }}');">
+                        <a href="{{ url_for('prikazi_vest', id=vest.id) }}" class="vest-link">
+                            <h3>{{ vest.naslov }}</h3>
+                        </a>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p>Nema dostupnih najnovijih vesti.</p>
+        {% endif %}
+
+        <!-- Prikaz rezultata pretrage ako je aktivna -->
+        {% if search_query %}
+            <div class="vesti">
+                {% if vesti %}
+                    {% for vest in vesti %}
+                        <div class="vest-kartica">
+                            <h3>{{ vest.naslov }}</h3>
+                            <p>{{ vest.sadrzaj }}</p>
+                            <a href="{{ url_for('prikazi_vest', id=vest.id) }}">Pročitaj više</a>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p>Nema rezultata za pretragu.</p>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</div>
 
 <footer>
     <p style="text-align:center; padding: 15px 10px; background: #f0f0f0; margin-top: 30px; font-size: 14px; color: #555;">
@@ -193,7 +226,7 @@
         navbar.classList.toggle('active');
     });
 
-    // Toggle preko tastature (Enter ili Space)
+    // Opcionalno: omogući toggle i preko tastature (Enter ili Space)
     hamburger.addEventListener('keydown', (e) => {
         if (e.key === "Enter" || e.key === " ") {
             e.preventDefault();
