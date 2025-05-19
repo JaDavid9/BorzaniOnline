@@ -1,182 +1,327 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% if vest %}{{ vest.naslov }}{% else %}Sve Vesti - BorzaniOnline{% endif %}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='sve_vesti.css') }}">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>{% if vest %}{{ vest.naslov }}{% else %}Sve Vesti - BorzaniOnline{% endif %}</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='sve_vesti.css') }}" />
+<style>
+  /* HEADER I NAVBAR sa plavim hederom i hamburger menijem */
+  header {
+    background-color: #140c45;
+    color: white;
+    padding: 10px 20px;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+
+  .logo-container {
+    display: flex;
+    align-items: center;
+  }
+
+  .logo-container img.logo {
+    height: 40px;
+    width: auto;
+  }
+
+  .logo-container h1 {
+    margin-left: 10px;
+    font-size: 24px;
+    color: white;
+  }
+
+  nav.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-top: 10px;
+  }
+
+  nav.navbar ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    gap: 15px;
+  }
+
+  nav.navbar ul li a {
+    color: white;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s ease;
+  }
+
+  nav.navbar ul li a:hover {
+    color: #cce5ff;
+  }
+
+  .search-form {
+    display: flex;
+    gap: 5px;
+  }
+
+  .search-form input[type="text"] {
+    padding: 5px 10px;
+    border-radius: 4px;
+    border: none;
+    font-size: 1em;
+  }
+
+  .search-form button {
+    background-color: #0056b3;
+    border: none;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+  }
+
+  .search-form button:hover {
+    background-color: #003d7a;
+  }
+
+  /* Hamburger meni dugme */
+  .menu-toggle {
+    display: none;
+    flex-direction: column;
+    justify-content: space-around;
+    width: 30px;
+    height: 25px;
+    cursor: pointer;
+  }
+
+  .menu-toggle div {
+    width: 100%;
+    height: 3px;
+    background-color: white;
+    border-radius: 2px;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    nav.navbar ul {
+      flex-direction: column;
+      width: 100%;
+      display: none;
+      margin-top: 10px;
+      background-color: #0056b3;
+      border-radius: 4px;
+      padding: 10px 0;
+    }
+
+    nav.navbar ul.active {
+      display: flex;
+    }
+
+    .search-form {
+      margin-top: 10px;
+      width: 100%;
+    }
+
+    .menu-toggle {
+      display: flex;
+    }
+  }
+
+  /* Ostali stilovi kao pre */
+  .vest-detalji {
+    text-align: center;
+    margin: 20px auto;
+    width: 80%;
+  }
+
+  .vest-detalji h1 {
+    font-size: 2.5em;
+    margin-bottom: 10px;
+    color: #333;
+  }
+
+  .vest-detalji .datum-vreme {
+    font-size: 1.1em;
+    color: #666;
+    margin-bottom: 20px;
+  }
+
+  .vest-sadrzaj p {
+    font-size: 1.2em;
+    line-height: 1.6;
+    color: #333;
+    text-align: center;
+  }
+
+  .carousel {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    width: 80%;
+    margin: 20px auto;
+  }
+
+  .carousel img, .carousel video {
+    max-width: 100%;
+    max-height: 400px;
+    display: none;
+  }
+
+  .carousel img.active, .carousel video.active {
+    display: block;
+  }
+
+  .carousel .prev, .carousel .next {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    cursor: pointer;
+    padding: 10px 20px;
+    font-size: 1.2em;
+    z-index: 1;
+  }
+
+  .carousel .prev {
+    left: 10px;
+  }
+
+  .carousel .next {
+    right: 10px;
+  }
+
+  footer {
+    text-align: center;
+    font-size: 0.9em;
+    color: #555;
+    margin: 40px 0 20px 0;
+  }
+</style>
 </head>
 <body>
-    <!-- Gornji deo sa logotipom i naslovom -->
-    <header>
-        <div class="logo-container">
-            <img src="{{ url_for('static', filename='logo1.png') }}" alt="Logo" class="logo">
-            <h1>BorzaniOnline</h1>
-        </div>
-        <br>
-        <!-- Navigacioni bar -->
-        <nav class="navbar">
-            <ul>
-                <li><a href="{{ url_for('sve_vesti') }}">Naslovna</a></li>
-                <!--<li><a href="{{ url_for('vesti') }}#vesti">Vesti</a></li>-->
-                <li><a href="{{ url_for('najnovije') }}#vesti">Najnovije</a></li>
-                <li><a href="{{ url_for('lokalne_vesti') }}#vesti">Lokalne vesti</a></li>
-                <li><a href="{{ url_for('sport') }}#vesti">Sport</a></li>
-                <li><a href="{{ url_for('vremenska_prognoza') }}#vesti">Vremenska prognoza</a></li>
-                <li><a href="{{ url_for('kontakt') }}#vesti">Kontakt</a></li>
-                <li><a href="{{ url_for('ostavi_vest') }}#vesti">| Ostavi vest </a></li>
-            </ul>
-            
-            <!-- Forma za pretragu -->
-            <form action="{{ url_for('sve_vesti') }}" method="GET" class="search-form">
-                <input type="text" name="search" placeholder="Pretraži vesti..." value="{{ request.args.get('search', '') }}">
-                <button type="submit">Pretraži</button>
-            </form>
-        </nav>
-    </br>
-    </header>
 
-    <main>
-        <!-- Detalji o vesti -->
-        {% if vest %}
-        <section class="vest-detalji">
-            <h1>{{ vest.naslov }}</h1>
-            <p class="datum-vreme"><strong>Datum i vreme:</strong> {{ vest.datum_vreme }}</p>
+<header>
+  <div class="logo-container">
+    <img src="{{ url_for('static', filename='logo1.png') }}" alt="Logo" class="logo" />
+    <h1>BorzaniOnline</h1>
+  </div>
 
-            <!-- Slike i video snimci -->
-            {% if vest.slike or vest.video %}
-            <section class="carousel-section">
-                <div class="carousel">
-                    <!-- Slike -->
-                    {% for slika in vest.slike %}
-                    <img src="{{ url_for('uploaded_file', filename=slika) }}" alt="Slika" class="{% if loop.first %}active{% endif %}">
-                    {% endfor %}
+  <!-- Hamburger dugme -->
+  <div class="menu-toggle" id="menu-toggle" aria-label="Toggle menu" aria-expanded="false" role="button" tabindex="0">
+    <div></div>
+    <div></div>
+    <div></div>
+  </div>
 
-                    <!-- Video -->
-                    {% for video in vest.video %}
-                    <video controls class="{% if not vest.slike and loop.first %}active{% endif %}">
-                        <source src="{{ url_for('uploaded_file', filename=video) }}" type="video/mp4">
-                        Vaš pretraživač ne podržava video tag.
-                    </video>
-                    {% endfor %}
+  <nav class="navbar">
+    <ul id="navbar-menu">
+      <li><a href="{{ url_for('sve_vesti') }}">Naslovna</a></li>
+      <!--<li><a href="{{ url_for('vesti') }}#vesti">Vesti</a></li>-->
+      <li><a href="{{ url_for('najnovije') }}#vesti">Najnovije</a></li>
+      <li><a href="{{ url_for('lokalne_vesti') }}#vesti">Lokalne vesti</a></li>
+      <li><a href="{{ url_for('sport') }}#vesti">Sport</a></li>
+      <li><a href="{{ url_for('vremenska_prognoza') }}#vesti">Vremenska prognoza</a></li>
+      <li><a href="{{ url_for('kontakt') }}#vesti">Kontakt</a></li>
+      <li><a href="{{ url_for('ostavi_vest') }}#vesti">| Ostavi vest </a></li>
+    </ul>
 
-                    <!-- Dugmići za listanje -->
-                    <button class="prev">&lt;</button>
-                    <button class="next">&gt;</button>
-                </div>
-            </section>
-            {% endif %}
+    <form action="{{ url_for('sve_vesti') }}" method="GET" class="search-form">
+      <input type="text" name="search" placeholder="Pretraži vesti..." value="{{ request.args.get('search', '') }}" />
+      <button type="submit">Pretraži</button>
+    </form>
+  </nav>
+</header>
 
-            <!-- Sadržaj -->
-            <section class="vest-sadrzaj">
-                <p>{{ vest.sadrzaj }}</p>
-            </section>
-        </section>
-        {% else %}
-        <p>Nema podataka o vesti.</p>
-        {% endif %}
-    </main>
+<main>
+  {% if vest %}
+  <section class="vest-detalji">
+    <h1>{{ vest.naslov }}</h1>
+    <p class="datum-vreme"><strong>Datum i vreme:</strong> {{ vest.datum_vreme }}</p>
 
-    <footer>
-        <p>Preuzimanje i objavljivanje tekstova sa portala Radio Borzani Brezovica nije dozvoljeno bez navođenja izvora. Hvala na poštovanju etike novinarske profesije.</p>
-    </footer>
+    {% if vest.slike or vest.video %}
+    <section class="carousel-section">
+      <div class="carousel">
+        {% for slika in vest.slike %}
+        <img src="{{ url_for('uploaded_file', filename=slika) }}" alt="Slika" class="{% if loop.first %}active{% endif %}" />
+        {% endfor %}
+        {% for video in vest.video %}
+        <video controls class="{% if not vest.slike and loop.first %}active{% endif %}">
+          <source src="{{ url_for('uploaded_file', filename=video) }}" type="video/mp4" />
+          Vaš pretraživač ne podržava video tag.
+        </video>
+        {% endfor %}
+        <button class="prev">&lt;</button>
+        <button class="next">&gt;</button>
+      </div>
+    </section>
+    {% endif %}
 
-    <script>
-        // JavaScript za karusel
-        const carousel = document.querySelector('.carousel');
-        if (carousel) {
-            const items = carousel.querySelectorAll('img, video');
-            const prevButton = carousel.querySelector('.prev');
-            const nextButton = carousel.querySelector('.next');
-            let currentIndex = 0;
+    <section class="vest-sadrzaj">
+      <p>{{ vest.sadrzaj }}</p>
+    </section>
+  </section>
+  {% else %}
+  <p>Nema podataka o vesti.</p>
+  {% endif %}
+</main>
 
-            function updateCarousel() {
-                items.forEach((item, index) => {
-                    item.classList.toggle('active', index === currentIndex);
-                });
-            }
+<footer>
+  <p>Preuzimanje i objavljivanje tekstova sa portala Radio Borzani Brezovica nije dozvoljeno bez navođenja izvora. Hvala na poštovanju etike novinarske profesije.</p>
+</footer>
 
-            prevButton.addEventListener('click', () => {
-                currentIndex = (currentIndex > 0) ? currentIndex - 1 : items.length - 1;
-                updateCarousel();
-            });
+<script>
+  // Karusel
+  const carousel = document.querySelector('.carousel');
+  if (carousel) {
+    const items = carousel.querySelectorAll('img, video');
+    const prevButton = carousel.querySelector('.prev');
+    const nextButton = carousel.querySelector('.next');
+    let currentIndex = 0;
 
-            nextButton.addEventListener('click', () => {
-                currentIndex = (currentIndex < items.length - 1) ? currentIndex + 1 : 0;
-                updateCarousel();
-            });
+    function updateCarousel() {
+      items.forEach((item, index) => {
+        item.classList.toggle('active', index === currentIndex);
+      });
+    }
 
-            updateCarousel();
-        }
-    </script>
-    <style>
-        /* Opšti stilovi */
-        .vest-detalji {
-            text-align: center;
-            margin: 20px auto;
-            width: 80%;
-        }
+    prevButton.addEventListener('click', () => {
+      currentIndex = (currentIndex > 0) ? currentIndex - 1 : items.length - 1;
+      updateCarousel();
+    });
 
-        .vest-detalji h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
-            color: #333;
-        }
+    nextButton.addEventListener('click', () => {
+      currentIndex = (currentIndex < items.length - 1) ? currentIndex + 1 : 0;
+      updateCarousel();
+    });
 
-        .vest-detalji .datum-vreme {
-            font-size: 1.1em;
-            color: #666;
-            margin-bottom: 20px;
-        }
+    updateCarousel();
+  }
 
-        .vest-sadrzaj p {
-            font-size: 1.2em;
-            line-height: 1.6;
-            color: #333;
-            text-align: center;
-        }
+  // Toggle hamburger meni
+  const menuToggle = document.getElementById('menu-toggle');
+  const navbarMenu = document.getElementById('navbar-menu');
 
-        /* Karusel stilovi */
-        .carousel {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            overflow: hidden;
-            width: 80%;
-            margin: 20px auto;
-        }
+  menuToggle.addEventListener('click', () => {
+    const expanded = menuToggle.getAttribute('aria-expanded') === 'true' || false;
+    menuToggle.setAttribute('aria-expanded', !expanded);
+    navbarMenu.classList.toggle('active');
+  });
 
-        .carousel img, .carousel video {
-            max-width: 100%;
-            max-height: 400px;
-            display: none;
-        }
+  // Keyboard accessibility for hamburger button
+  menuToggle.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      menuToggle.click();
+    }
+  });
+</script>
 
-        .carousel img.active, .carousel video.active {
-            display: block;
-        }
-
-        .carousel .prev, .carousel .next {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            background-color: rgba(0, 0, 0, 0.5);
-            color: white;
-            border: none;
-            cursor: pointer;
-            padding: 10px 20px;
-            font-size: 1.2em;
-            z-index: 1;
-        }
-
-        .carousel .prev {
-            left: 10px;
-        }
-
-        .carousel .next {
-            right: 10px;
-        }
-    </style>
 </body>
 </html>

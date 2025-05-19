@@ -1,105 +1,181 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sve Vesti - BorzaniOnline</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='sve_vesti.css') }}">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sport - BorzaniOnline</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='sve_vesti.css') }}" />
+  <style>
+    /* Hamburger dugme (tri crtice) */
+    #menu-toggle {
+      display: none;
+      cursor: pointer;
+      margin-left: auto;
+      padding: 10px;
+      width: 30px;
+      height: 25px;
+      position: relative;
+      z-index: 1000;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    #menu-toggle div {
+      background-color: #333;
+      height: 4px;
+      margin: 5px 0;
+      border-radius: 2px;
+      transition: all 0.3s ease;
+    }
+
+    /* Navigacija desktop */
+    .navbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    /* Navigacija mobilna (sakrivena) */
+    @media (max-width: 768px) {
+      .navbar {
+        display: none;
+        flex-direction: column;
+        background-color: #f5f5f5;
+        width: 100%;
+        padding: 10px 0;
+      }
+
+      .navbar.active {
+        display: flex;
+      }
+
+      #menu-toggle {
+        display: block;
+      }
+
+      .navbar ul {
+        flex-direction: column;
+        padding-left: 0;
+        margin: 0;
+        list-style: none;
+        width: 100%;
+      }
+
+      .navbar ul li {
+        margin: 10px 0;
+        text-align: center;
+      }
+
+      .search-form {
+        margin-top: 10px;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+      }
+
+      .search-form input[type="text"] {
+        width: 70%;
+        padding: 6px;
+        font-size: 1rem;
+      }
+
+      .search-form button {
+        padding: 6px 12px;
+        font-size: 1rem;
+        cursor: pointer;
+      }
+
+      .logo {
+        max-width: 60px;
+        height: auto;
+      }
+
+      .logo-container h1 {
+        font-size: 20px;
+      }
+
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+    }
+  </style>
 </head>
 <body>
-    <!-- Gornji deo sa logotipom i naslovom -->
-    <header>
-        <div class="logo-container">
-            <img src="{{ url_for('static', filename='logo1.png') }}" alt="Logo" class="logo">
-            <h1>BorzaniOnline</h1>
-        </div>
-        <br>
-        <!-- Navigacioni bar -->
-        <nav class="navbar">
-            <ul>
-                <li><a href="{{ url_for('sve_vesti') }}">Naslovna</a></li>
-                <!--<li><a href="{{ url_for('vesti') }}#vesti">Vesti</a></li>-->
-                <li><a href="{{ url_for('najnovije') }}#vesti">Najnovije</a></li>
-                <li><a href="{{ url_for('lokalne_vesti') }}#vesti">Lokalne vesti</a></li>
-                <li><a href="{{ url_for('sport') }}#vesti">Sport</a></li>
-                <li><a href="{{ url_for('vremenska_prognoza') }}#vesti">Vremenska prognoza</a></li>
-                <li><a href="{{ url_for('kontakt') }}#vesti">Kontakt</a></li>
-                <li><a href="{{ url_for('ostavi_vest') }}#vesti">| Ostavi vest </a></li>
-                
-            </ul>
-            
-            <!-- Forma za pretragu -->
-            <form action="{{ url_for('sve_vesti') }}" method="GET" class="search-form">
-                <input type="text" name="search" placeholder="Pretraži vesti..." value="{{ request.args.get('search', '') }}">
-                <button type="submit">Pretraži</button>
-            </form>
-        </nav>
-    </br>
-    </header>
-
-    <div class="container">
-        <div class="naslovna-stranica">
-            <!-- Najnovija vest -->
-            <div class="najnovija-vest">
-                {% if vesti|length > 0 %}
-                    <div class="vest-kartica velika" style="background-image: url('{{ url_for('uploaded_file', filename=vesti[0].slike[0] if vesti[0].slike else 'placeholder.jpg') }}');">
-                        <a href="{{ url_for('prikazi_vest', id=0) }}" class="vest-link">
-                            <h2>{{ vesti[0].naslov }}</h2>
-                        </a>
-                    </div>
-                {% else %}
-                    <p>Nema dostupnih vesti.</p>
-                {% endif %}
-            </div>
-    
-            <!-- Ostale vesti -->
-            <div class="ostale-vesti">
-                {% if not search_query %}
-                    <!-- Prikazuje samo kada nije aktivna pretraga -->
-                    {% for vest in vesti[1:5]|reverse %}
-                        <div class="vest-kartica mala" style="background-image: url('{{ url_for('uploaded_file', filename=vest.slike[0] if vest.slike else 'placeholder.jpg') }}');">
-                            <a href="{{ url_for('prikazi_vest', id=loop.index) }}" class="vest-link">
-                                <h3>{{ vest.naslov }}</h3>
-                            </a>
-                        </div>
-                    {% endfor %}
-                {% endif %}
-            </div>
-    
-            <!-- Male kartice sa naslovima pored (ako pretraga nije aktivna) -->
-            {% if not search_query %}
-                <div class="male-kartice">
-                    {% for vest in vesti[5:25] %}
-                        <div class="kartica-sa-naslovom" style="background-image: url('{{ url_for('uploaded_file', filename=vest.slike[0] if vest.slike else 'placeholder.jpg') }}');">
-                            <a href="{{ url_for('prikazi_vest', id=loop.index) }}">
-                                <h3>{{ vest.naslov }}</h3>
-                            </a>
-                        </div>
-                    {% endfor %}
-                </div>
-            {% endif %}
-        </div>
-
-        <!-- Prikazivanje filtriranih vesti kada je pretraga aktivna -->
-        {% if search_query %}
-            <div class="vesti">
-                {% if vesti %}
-                    {% for vest in vesti %}
-                        <div class="vest-kartica">
-                            <h3>{{ vest.naslov }}</h3>
-                            <p>{{ vest.sadrzaj }}</p>
-                            <a href="{{ url_for('prikazi_vest', id=loop.index0) }}">Pročitaj više</a>
-                        </div>
-                    {% endfor %}
-                {% else %}
-                    <p>Nema rezultata za pretragu.</p>
-                {% endif %}
-            </div>
-        {% endif %}
+  <header>
+    <div class="logo-container" style="display:flex; align-items:center;">
+      <img src="{{ url_for('static', filename='logo1.png') }}" alt="Logo" class="logo" />
+      <h1 style="margin-left: 10px;">BorzaniOnline</h1>
     </div>
-    
-    <footer>
-        <p>Preuzimanje i objavljivanje tekstova sa portala Radio Borzani Brezovica nije dozvoljeno bez navođenja izvora. Hvala na poštovanju etike novinarske profesije.</p>
-    </footer>
+
+    <div id="menu-toggle" aria-label="Toggle menu" aria-expanded="false" role="button" tabindex="0">
+      <div></div>
+      <div></div>
+      <div></div>
+    </div>
+
+    <nav class="navbar" id="navbar-menu">
+      <ul>
+        <li><a href="{{ url_for('sve_vesti') }}">Naslovna</a></li>
+        <!--<li><a href="{{ url_for('vesti') }}#vesti">Vesti</a></li>-->
+        <li><a href="{{ url_for('najnovije') }}#vesti">Najnovije</a></li>
+        <li><a href="{{ url_for('lokalne_vesti') }}#vesti">Lokalne vesti</a></li>
+        <li><a href="{{ url_for('sport') }}#vesti">Sport</a></li>
+        <li><a href="{{ url_for('vremenska_prognoza') }}#vesti">Vremenska prognoza</a></li>
+        <li><a href="{{ url_for('kontakt') }}#vesti">Kontakt</a></li>
+        <li><a href="{{ url_for('ostavi_vest') }}#vesti">| Ostavi vest </a></li>
+      </ul>
+
+      <form action="{{ url_for('sport') }}" method="GET" class="search-form">
+        <input
+          type="text"
+          name="search"
+          placeholder="Pretraži sportske vesti..."
+          value="{{ request.args.get('search', '') }}"
+        />
+        <button type="submit">Pretraži</button>
+      </form>
+    </nav>
+  </header>
+
+  <main>
+    <h2></h2>
+
+    {% if vesti %}
+      {% for vest in vesti %}
+        <div class="vest-kartica">
+          <h3>{{ vest.naslov }}</h3>
+          <p>{{ vest.sadrzaj }}</p>
+          <a href="{{ url_for('prikazi_vest', id=loop.index0) }}">Pročitaj više</a>
+        </div>
+      {% endfor %}
+    {% else %}
+      <p>Nema dostupnih sportskih vesti.</p>
+    {% endif %}
+  </main>
+
+  <footer>
+    <p>Preuzimanje i objavljivanje tekstova sa portala Radio Borzani Brezovica nije dozvoljeno bez navođenja izvora. Hvala na poštovanju etike novinarske profesije.</p>
+  </footer>
+
+  <script>
+    // Toggle hamburger meni
+    const menuToggle = document.getElementById('menu-toggle');
+    const navbarMenu = document.getElementById('navbar-menu');
+
+    menuToggle.addEventListener('click', () => {
+      const expanded = menuToggle.getAttribute('aria-expanded') === 'true' || false;
+      menuToggle.setAttribute('aria-expanded', !expanded);
+      navbarMenu.classList.toggle('active');
+    });
+
+    // Keyboard accessibility for hamburger button
+    menuToggle.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        menuToggle.click();
+      }
+    });
+  </script>
 </body>
 </html>

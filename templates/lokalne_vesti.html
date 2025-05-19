@@ -1,48 +1,106 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sve Vesti - BorzaniOnline</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='sve_vesti.css') }}">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Lokalne Vesti - BorzaniOnline</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='sve_vesti.css') }}" />
+    <style>
+        /* Hamburger dugme */
+        .hamburger {
+            display: none;
+            font-size: 30px;
+            cursor: pointer;
+            margin-left: auto;
+            padding: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                display: none;
+                flex-direction: column;
+                background-color: #f5f5f5;
+                width: 100%;
+                padding: 10px;
+            }
+
+            .navbar.active {
+                display: flex;
+            }
+
+            .hamburger {
+                display: block;
+            }
+
+            .navbar ul {
+                flex-direction: column;
+                padding-left: 0;
+                margin: 0;
+            }
+
+            .navbar ul li {
+                margin: 10px 0;
+            }
+
+            .search-form {
+                margin-top: 10px;
+            }
+
+            .logo-container {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+            }
+
+            .logo {
+                max-width: 60px;
+                height: auto;
+            }
+
+            .logo-container h1 {
+                font-size: 20px;
+                margin-left: 10px;
+            }
+        }
+    </style>
 </head>
 <body>
-    <!-- Gornji deo sa logotipom i naslovom -->
     <header>
-        <div class="logo-container">
-            <img src="{{ url_for('static', filename='logo1.png') }}" alt="Logo" class="logo">
-            <h1>BorzaniOnline</h1>
+        <div class="logo-container" style="display: flex; align-items: center; justify-content: space-between;">
+            <div style="display: flex; align-items: center;">
+                <img src="{{ url_for('static', filename='logo1.png') }}" alt="Logo" class="logo" style="max-width: 80px;" />
+                <h1 style="margin-left: 10px;">BorzaniOnline</h1>
+            </div>
+            <div class="hamburger" onclick="toggleMenu()">☰</div>
         </div>
-        <br>
-        <!-- Navigacioni bar -->
-        <nav class="navbar">
+
+        <nav class="navbar" id="navbar">
             <ul>
                 <li><a href="{{ url_for('sve_vesti') }}">Naslovna</a></li>
-                <!--<li><a href="{{ url_for('vesti') }}#vesti">Vesti</a></li>-->
                 <li><a href="{{ url_for('najnovije') }}#vesti">Najnovije</a></li>
                 <li><a href="{{ url_for('lokalne_vesti') }}#vesti">Lokalne vesti</a></li>
                 <li><a href="{{ url_for('sport') }}#vesti">Sport</a></li>
                 <li><a href="{{ url_for('vremenska_prognoza') }}#vesti">Vremenska prognoza</a></li>
                 <li><a href="{{ url_for('kontakt') }}#vesti">Kontakt</a></li>
                 <li><a href="{{ url_for('ostavi_vest') }}#vesti">| Ostavi vest </a></li>
-                
             </ul>
-            
-            <!-- Forma za pretragu -->
-            <form action="{{ url_for('sve_vesti') }}" method="GET" class="search-form">
-                <input type="text" name="search" placeholder="Pretraži vesti..." value="{{ request.args.get('search', '') }}">
+
+            <form action="{{ url_for('lokalne_vesti') }}" method="GET" class="search-form">
+                <input type="text" name="search" placeholder="Pretraži vesti..." value="{{ request.args.get('search', '') }}" />
                 <button type="submit">Pretraži</button>
             </form>
         </nav>
-    </br>
     </header>
 
     <div class="container">
         <div class="naslovna-stranica">
-            <!-- Najnovija vest -->
+            <!-- Najnovija lokalna vest -->
             <div class="najnovija-vest">
                 {% if vesti|length > 0 %}
-                    <div class="vest-kartica velika" style="background-image: url('{{ url_for('uploaded_file', filename=vesti[0].slike[0] if vesti[0].slike else 'placeholder.jpg') }}');">
+                    <div
+                        class="vest-kartica velika"
+                        style="background-image: url('{{ url_for('uploaded_file', filename=vesti[0].slike[0] if vesti[0].slike else 'placeholder.jpg') }}');"
+                    >
                         <a href="{{ url_for('prikazi_vest', id=0) }}" class="vest-link">
                             <h2>{{ vesti[0].naslov }}</h2>
                         </a>
@@ -51,13 +109,15 @@
                     <p>Nema dostupnih vesti.</p>
                 {% endif %}
             </div>
-    
-            <!-- Ostale vesti -->
+
+            <!-- Ostale lokalne vesti -->
             <div class="ostale-vesti">
                 {% if not search_query %}
-                    <!-- Prikazuje samo kada nije aktivna pretraga -->
                     {% for vest in vesti[1:5]|reverse %}
-                        <div class="vest-kartica mala" style="background-image: url('{{ url_for('uploaded_file', filename=vest.slike[0] if vest.slike else 'placeholder.jpg') }}');">
+                        <div
+                            class="vest-kartica mala"
+                            style="background-image: url('{{ url_for('uploaded_file', filename=vest.slike[0] if vest.slike else 'placeholder.jpg') }}');"
+                        >
                             <a href="{{ url_for('prikazi_vest', id=loop.index) }}" class="vest-link">
                                 <h3>{{ vest.naslov }}</h3>
                             </a>
@@ -65,12 +125,15 @@
                     {% endfor %}
                 {% endif %}
             </div>
-    
+
             <!-- Male kartice sa naslovima pored (ako pretraga nije aktivna) -->
             {% if not search_query %}
                 <div class="male-kartice">
                     {% for vest in vesti[5:25] %}
-                        <div class="kartica-sa-naslovom" style="background-image: url('{{ url_for('uploaded_file', filename=vest.slike[0] if vest.slike else 'placeholder.jpg') }}');">
+                        <div
+                            class="kartica-sa-naslovom"
+                            style="background-image: url('{{ url_for('uploaded_file', filename=vest.slike[0] if vest.slike else 'placeholder.jpg') }}');"
+                        >
                             <a href="{{ url_for('prikazi_vest', id=loop.index) }}">
                                 <h3>{{ vest.naslov }}</h3>
                             </a>
@@ -97,9 +160,19 @@
             </div>
         {% endif %}
     </div>
-    
+
     <footer>
-        <p>Preuzimanje i objavljivanje tekstova sa portala Radio Borzani Brezovica nije dozvoljeno bez navođenja izvora. Hvala na poštovanju etike novinarske profesije.</p>
+        <p>
+            Preuzimanje i objavljivanje tekstova sa portala Radio Borzani Brezovica nije dozvoljeno bez
+            navođenja izvora. Hvala na poštovanju etike novinarske profesije.
+        </p>
     </footer>
+
+    <script>
+        function toggleMenu() {
+            const navbar = document.getElementById('navbar');
+            navbar.classList.toggle('active');
+        }
+    </script>
 </body>
 </html>
