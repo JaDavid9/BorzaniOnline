@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% if vest %}{{ vest.naslov }}{% else %}Sve Vesti - BorzaniOnline{% endif %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='sve_vesti.css') }}">
+</head>
+<body>
+    <!-- Gornji deo sa logotipom i naslovom -->
+    <header>
+        <div class="logo-container">
+            <img src="{{ url_for('static', filename='logo1.png') }}" alt="Logo" class="logo">
+            <h1>BorzaniOnline</h1>
+        </div>
+        <br>
+        <!-- Navigacioni bar -->
+        <nav class="navbar">
+            <ul>
+                <li><a href="{{ url_for('sve_vesti') }}">Naslovna</a></li>
+                <li><a href="{{ url_for('vesti') }}#vesti">Vesti</a></li>
+                <li><a href="{{ url_for('najnovije') }}#vesti">Najnovije</a></li>
+                <li><a href="{{ url_for('lokalne_vesti') }}#vesti">Lokalne vesti</a></li>
+                <li><a href="{{ url_for('sport') }}#vesti">Sport</a></li>
+                <li><a href="{{ url_for('vremenska_prognoza') }}#vesti">Vremenska prognoza</a></li>
+                <li><a href="{{ url_for('kontakt') }}#vesti">Kontakt</a></li>
+                <li><a href="{{ url_for('ostavi_vest') }}#vesti">| Ostavi vest </a></li>
+            </ul>
+            
+            <!-- Forma za pretragu -->
+            <form action="{{ url_for('sve_vesti') }}" method="GET" class="search-form">
+                <input type="text" name="search" placeholder="Pretraži vesti..." value="{{ request.args.get('search', '') }}">
+                <button type="submit">Pretraži</button>
+            </form>
+        </nav>
+    </br>
+    </header>
+
+    <main>
+        <!-- Detalji o vesti -->
+        {% if vest %}
+        <section class="vest-detalji">
+            <h1>{{ vest.naslov }}</h1>
+            <p class="datum-vreme"><strong>Datum i vreme:</strong> {{ vest.datum_vreme }}</p>
+
+            <!-- Slike i video snimci -->
+            {% if vest.slike or vest.video %}
+            <section class="carousel-section">
+                <div class="carousel">
+                    <!-- Slike -->
+                    {% for slika in vest.slike %}
+                    <img src="{{ url_for('uploaded_file', filename=slika) }}" alt="Slika" class="{% if loop.first %}active{% endif %}">
+                    {% endfor %}
+
+                    <!-- Video -->
+                    {% for video in vest.video %}
+                    <video controls class="{% if not vest.slike and loop.first %}active{% endif %}">
+                        <source src="{{ url_for('uploaded_file', filename=video) }}" type="video/mp4">
+                        Vaš pretraživač ne podržava video tag.
+                    </video>
+                    {% endfor %}
+
+                    <!-- Dugmići za listanje -->
+                    <button class="prev">&lt;</button>
+                    <button class="next">&gt;</button>
+                </div>
+            </section>
+            {% endif %}
+
+            <!-- Sadržaj -->
+            <section class="vest-sadrzaj">
+                <p>{{ vest.sadrzaj }}</p>
+            </section>
+        </section>
+        {% else %}
+        <p>Nema podataka o vesti.</p>
+        {% endif %}
+    </main>
+
+    <footer>
+        <p>Preuzimanje i objavljivanje tekstova sa portala Radio Borzani Brezovica nije dozvoljeno bez navođenja izvora. Hvala na poštovanju etike novinarske profesije.</p>
+    </footer>
+
+    <script>
+        // JavaScript za karusel
+        const carousel = document.querySelector('.carousel');
+        if (carousel) {
+            const items = carousel.querySelectorAll('img, video');
+            const prevButton = carousel.querySelector('.prev');
+            const nextButton = carousel.querySelector('.next');
+            let currentIndex = 0;
+
+            function updateCarousel() {
+                items.forEach((item, index) => {
+                    item.classList.toggle('active', index === currentIndex);
+                });
+            }
+
+            prevButton.addEventListener('click', () => {
+                currentIndex = (currentIndex > 0) ? currentIndex - 1 : items.length - 1;
+                updateCarousel();
+            });
+
+            nextButton.addEventListener('click', () => {
+                currentIndex = (currentIndex < items.length - 1) ? currentIndex + 1 : 0;
+                updateCarousel();
+            });
+
+            updateCarousel();
+        }
+    </script>
+    <style>
+        /* Opšti stilovi */
+        .vest-detalji {
+            text-align: center;
+            margin: 20px auto;
+            width: 80%;
+        }
+
+        .vest-detalji h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .vest-detalji .datum-vreme {
+            font-size: 1.1em;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .vest-sadrzaj p {
+            font-size: 1.2em;
+            line-height: 1.6;
+            color: #333;
+            text-align: center;
+        }
+
+        /* Karusel stilovi */
+        .carousel {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            width: 80%;
+            margin: 20px auto;
+        }
+
+        .carousel img, .carousel video {
+            max-width: 100%;
+            max-height: 400px;
+            display: none;
+        }
+
+        .carousel img.active, .carousel video.active {
+            display: block;
+        }
+
+        .carousel .prev, .carousel .next {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: none;
+            cursor: pointer;
+            padding: 10px 20px;
+            font-size: 1.2em;
+            z-index: 1;
+        }
+
+        .carousel .prev {
+            left: 10px;
+        }
+
+        .carousel .next {
+            right: 10px;
+        }
+    </style>
+</body>
+</html>

@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Editovanje vesti</title>
+</head>
+<body>
+    <h2>Izmeni Vest</h2>
+    <form method="POST">
+        <label for="naslov">Naslov:</label><br>
+        <input type="text" name="naslov" value="{{ vest.naslov }}" required><br><br>
+        
+        <label for="sadrzaj">Sadržaj:</label><br>
+        <textarea name="sadrzaj" required>{{ vest.sadrzaj }}</textarea><br><br>
+
+        <input type="submit" value="Potvrdi">
+    </form>
+</body>
+</html>

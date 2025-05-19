@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sve Vesti - BorzaniOnline</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='sve_vesti.css') }}">
+</head>
+<body>
+    <!-- Gornji deo sa logotipom i naslovom -->
+    <header>
+        <div class="logo-container">
+            <img src="{{ url_for('static', filename='logo1.png') }}" alt="Logo" class="logo">
+            <h1>BorzaniOnline</h1>
+        </div>
+        <br>
+        <!-- Navigacioni bar -->
+       <nav class="navbar">
+    <ul>
+
+                <li><a href="{{ url_for('sve_vesti') }}">Naslovna</a></li>
+                <li><a href="{{ url_for('vesti') }}#vesti">Vesti</a></li>
+                <li><a href="{{ url_for('najnovije') }}#vesti">Najnovije</a></li>
+                <li><a href="{{ url_for('lokalne_vesti') }}#vesti">Lokalne vesti</a></li>
+                <li><a href="{{ url_for('sport') }}#vesti">Sport</a></li>
+                <li><a href="{{ url_for('vremenska_prognoza') }}#vesti">Vremenska prognoza</a></li>
+                <li><a href="{{ url_for('kontakt') }}#vesti">Kontakt</a></li>
+                <li><a href="{{ url_for('ostavi_vest') }}#vesti">| Ostavi vest </a></li>
+    </ul>
+
+            
+            <!-- Forma za pretragu -->
+           <form action="{{ url_for('vesti') }}" method="GET" class="search-form">
+    <input type="text" name="search" placeholder="Pretraži vesti..." value="{{ request.args.get('search', '') }}">
+    <button type="submit">Pretraži</button>
+</form>
+        </nav>
+    </br>
+    </header>
+
+    <div class="container">
+        <div class="naslovna-stranica">
+            <!-- Najnovija vest -->
+            <div class="najnovija-vest">
+                {% if vesti|length > 0 %}
+                    <div class="vest-kartica velika" style="background-image: url('{{ url_for('uploaded_file', filename=vesti[0].slike[0] if vesti[0].slike else 'placeholder.jpg') }}');">
+                        <a href="{{ url_for('prikazi_vest', id=0) }}" class="vest-link">
+                            <h2>{{ vesti[0].naslov }}</h2>
+                        </a>
+                    </div>
+                {% else %}
+                    <p>Nema dostupnih vesti.</p>
+                {% endif %}
+            </div>
+    
+            <!-- Ostale vesti -->
+            <div class="ostale-vesti">
+                {% if not search_query %}
+                    <!-- Prikazuje samo kada nije aktivna pretraga -->
+                    {% for vest in vesti[1:5]|reverse %}
+                        <div class="vest-kartica mala" style="background-image: url('{{ url_for('uploaded_file', filename=vest.slike[0] if vest.slike else 'placeholder.jpg') }}');">
+                            <a href="{{ url_for('prikazi_vest', id=loop.index) }}" class="vest-link">
+                                <h3>{{ vest.naslov }}</h3>
+                            </a>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+    
+            <!-- Male kartice sa naslovima pored (ako pretraga nije aktivna) -->
+            {% if not search_query %}
+                <div class="male-kartice">
+                    {% for vest in vesti[5:25] %}
+                        <div class="kartica-sa-naslovom" style="background-image: url('{{ url_for('uploaded_file', filename=vest.slike[0] if vest.slike else 'placeholder.jpg') }}');">
+                            <a href="{{ url_for('prikazi_vest', id=loop.index) }}">
+                                <h3>{{ vest.naslov }}</h3>
+                            </a>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Prikazivanje filtriranih vesti kada je pretraga aktivna -->
+        {% if search_query %}
+            <div class="vesti">
+                {% if vesti %}
+                    {% for vest in vesti %}
+                        <div class="vest-kartica">
+                            <h3>{{ vest.naslov }}</h3>
+                            <p>{{ vest.sadrzaj }}</p>
+                            <a href="{{ url_for('prikazi_vest', id=loop.index0) }}">Pročitaj više</a>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p>Nema rezultata za pretragu.</p>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+    
+    <footer>
+        <p>Preuzimanje i objavljivanje tekstova sa portala Radio Borzani Brezovica nije dozvoljeno bez navođenja izvora. Hvala na poštovanju etike novinarske profesije.</p>
+    </footer>
+</body>
+</html>

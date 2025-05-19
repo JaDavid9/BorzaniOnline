@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Dobrodošli u Dashboard</h1>
+        
+        <h2>Postavite novu vest</h2>
+        <a href="{{ url_for('postavi_vest') }}" class="btn btn-blue">Postavi novu vest</a>
+
+        <h2>Pregled svih vesti</h2>
+        <a href="{{ url_for('sve_vesti') }}" class="btn btn-blue">Pogledajte sve vesti</a>
+
+        <!-- Forma za pretragu vesti po naslovu -->
+        <h2>Pretraga vesti</h2>
+        <form action="{{ url_for('dashboard') }}" method="GET">
+            <input type="text" name="search" placeholder="Pretraži po naslovu" value="{{ request.args.get('search', '') }}">
+            <button type="submit" class="btn btn-blue">Pretraga</button>
+        </form>
+
+        <h2>Lista Vesti</h2>
+        {% if vesti %}
+            {% for vest in vesti %}
+                <div class="vest">
+                    <h3>{{ vest.naslov }}</h3>
+                    <p>{{ vest.sadrzaj }}</p>
+                    
+                    {% if vest.slike %}
+                        <h4>Slike:</h4>
+                        <div class="slike">
+                            {% for slika in vest.slike %}
+                                <img src="{{ url_for('uploaded_file', filename=slika) }}" alt="Slika" class="vest-slika" width="300">
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    
+                    {% if vest.video %}
+                        <h4>Video:</h4>
+                        <div class="video">
+                            <video width="320" height="240" controls>
+                                <source src="{{ url_for('uploaded_file', filename=vest.video) }}" type="video/mp4">
+                                Vaš pretraživač ne podržava video tag.
+                            </video>
+                        </div>
+                    {% endif %}
+                    
+                    <div class="vest-opcije">
+                        <a href="{{ url_for('edit_vest', id=loop.index0) }}" class="btn btn-blue">Izmeni vest</a> | 
+                        <a href="{{ url_for('delete_vest', id=loop.index0) }}" class="btn btn-blue">Obriši vest</a>
+                    </div>
+                    <hr>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>Nema objavljenih vesti.</p>
+        {% endif %}
+
+    
+    </div>
+</body>
+</html>

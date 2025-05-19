@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sve Vesti - BorzaniOnline</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='sve_vesti.css') }}">
+</head>
+<body>
+    <!-- Gornji deo sa logotipom i naslovom -->
+    <header>
+        <div class="logo-container">
+            <img src="{{ url_for('static', filename='logo1.png') }}" alt="Logo" class="logo">
+            <h1>BorzaniOnline</h1>
+        </div>
+        <br>
+        <!-- Navigacioni bar -->
+        <nav class="navbar">
+            <ul>
+                <li><a href="{{ url_for('sve_vesti') }}">Naslovna</a></li>
+                <li><a href="{{ url_for('vesti') }}#vesti">Vesti</a></li>
+                <li><a href="{{ url_for('najnovije') }}#vesti">Najnovije</a></li>
+                <li><a href="{{ url_for('lokalne_vesti') }}#vesti">Lokalne vesti</a></li>
+                <li><a href="{{ url_for('sport') }}#vesti">Sport</a></li>
+                <li><a href="{{ url_for('vremenska_prognoza') }}#vesti">Vremenska prognoza</a></li>
+                <li><a href="{{ url_for('kontakt') }}#vesti">Kontakt</a></li>
+                <li><a href="{{ url_for('ostavi_vest') }}#vesti">| Ostavi vest </a></li>
+                
+            </ul>
+            
+            <!-- Forma za pretragu -->
+            <form action="{{ url_for('sve_vesti') }}" method="GET" class="search-form">
+                <input type="text" name="search" placeholder="Pretraži vesti..." value="{{ request.args.get('search', '') }}">
+                <button type="submit">Pretraži</button>
+            </form>
+        </nav>
+    </br>
+    </header>
+
+    <style>
+        form {
+            max-width: 500px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 8px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+            font-family: Arial, sans-serif;
+        }
+    
+        label {
+            font-weight: bold;
+            display: block;
+            margin: 10px 0 5px;
+        }
+    
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+    
+        input[type="file"] {
+            margin-top: 5px;
+        }
+    
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px;
+            width: 100%;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 15px;
+            border-radius: 4px;
+        }
+    
+        button:hover {
+            background-color: #0056b3;
+        }
+    
+        input[type="checkbox"] {
+            margin-right: 5px;
+        }
+    </style>
+    
+    <form action="{{ url_for('ostavi_vest') }}" method="post" enctype="multipart/form-data">
+        <label>
+            <input type="checkbox" id="anonimno" name="anonimno" onchange="toggleNameField()"> Postavi anonimno
+        </label>
+    
+        <label for="ime">Ime:</label>
+        <input type="text" id="ime" name="ime">
+    
+        <label for="tekst">Tekst vesti:</label>
+        <textarea id="tekst" name="tekst" required></textarea>
+    
+        <label for="slike">Dodaj slike:</label>
+        <input type="file" id="slike" name="slike" multiple>
+  
+    
+        <button type="submit">Pošalji vest</button>
+    </form>
+    
+    <script>
+        function toggleNameField() {
+            var checkbox = document.getElementById("anonimno");
+            var imeField = document.getElementById("ime");
+            imeField.disabled = checkbox.checked;
+        }
+    </script>
+    
+
+    
+    
+    <footer>
+        <p>Preuzimanje i objavljivanje tekstova sa portala Radio Borzani Brezovica nije dozvoljeno bez navođenja izvora. Hvala na poštovanju etike novinarske profesije.</p>
+    </footer>
+</body>
+</html>

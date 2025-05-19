@@ -1,0 +1,148 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f9;
+    color: #333;
+    line-height: 1.6;
+    padding: 20px;
+}
+
+h1, h2 {
+    color: #5c5c8a;
+    margin-bottom: 20px;
+}
+
+a {
+    text-decoration: none;
+    color: #007bff;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Stil za Dashboard */
+.dashboard-header {
+    background-color: #4CAF50;
+    color: white;
+    padding: 15px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
+.dashboard-actions {
+    margin-bottom: 20px;
+}
+
+.dashboard-actions a {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 5px;
+    margin-right: 10px;
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+.dashboard-actions a:hover {
+    background-color: #45a049;
+}
+
+.vesti-container {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
+}
+
+.vest-item {
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 15px;
+    margin-bottom: 15px;
+}
+
+.vest-item:last-child {
+    border-bottom: none;
+}
+
+.vest-item h3 {
+    color: #333;
+}
+
+.vest-item p {
+    color: #666;
+}
+
+.vest-actions {
+    margin-top: 10px;
+}
+
+.vest-actions a, .vest-actions form button {
+    background-color: #f44336;
+    color: white;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.vest-actions a:hover, .vest-actions form button:hover {
+    background-color: #e53935;
+}
+
+.vest-actions form {
+    display: inline;
+}
+
+.btn {
+    display: inline-block;
+    padding: 10px 20px;
+    margin: 10px 0;
+    text-align: center;
+    text-decoration: none;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+/* Stil za plavu dugmad */
+.btn-blue {
+    background-color: #007bff; /* Plava boja */
+    color: white;
+    border: none;
+}
+
+.btn-blue:hover {
+    background-color: #0056b3; /* Tamnija plava na hover */
+}
+
+/* Stil za osnovne elemente stranice */
+.container {
+    padding: 20px;
+}
+
+h1, h2 {
+    font-family: Arial, sans-serif;
+}
+
+.vest-opcije a {
+    margin: 0 10px;
+}
+
+/* Stil za slike u vestima */
+.slike img {
+    max-width: 300px;
+    margin: 5px;
+}
