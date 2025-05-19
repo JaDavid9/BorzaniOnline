@@ -61,6 +61,7 @@ def login_post():
     return "Pogrešno korisničko ime ili šifra."
 
 @app.route('/dashboard')
+
 def dashboard():
     search_query = request.args.get('search', '').lower()
     if search_query:
@@ -262,7 +263,7 @@ def ostavi_vest():
     return render_template('ostavi_vest.html')
 @app.route('/')
 def home_redirect():
-    return redirect('/BorzaniOnline')
+    return render_template('sve_vesti.html')
 
 if __name__ == '__main__':
     print("Pokrećem Flask server...")
