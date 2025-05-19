@@ -5,6 +5,63 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sve Vesti - BorzaniOnline</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='sve_vesti.css') }}">
+    <style>
+        .menu-toggle {
+            display: none;
+            font-size: 28px;
+            cursor: pointer;
+            padding: 10px;
+        }
+
+        .menu-items {
+            display: flex;
+            list-style: none;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        @media screen and (max-width: 768px) {
+            .menu-toggle {
+                display: block;
+            }
+
+            .menu-items {
+                display: none;
+                flex-direction: column;
+                width: 100%;
+                background-color: #f9f9f9;
+                padding: 10px 0;
+                margin: 0;
+            }
+
+            .menu-items.active {
+                display: flex;
+            }
+
+            .menu-items li {
+                text-align: center;
+                margin: 6px 0;
+            }
+
+            .search-form {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                padding: 10px;
+            }
+
+            .search-form input[type="text"] {
+                width: 80%;
+                padding: 6px;
+            }
+
+            .search-form button {
+                margin-top: 6px;
+                padding: 6px 12px;
+            }
+        }
+    </style>
 </head>
 <body>
     <!-- Gornji deo sa logotipom i naslovom -->
@@ -14,32 +71,40 @@
             <h1>BorzaniOnline</h1>
         </div>
         <br>
+
         <!-- Navigacioni bar -->
         <nav class="navbar">
-            <ul>
+            <div class="menu-toggle" onclick="toggleMenu()">☰</div>
+            <ul class="menu-items" id="menuItems">
                 <li><a href="{{ url_for('sve_vesti') }}">Naslovna</a></li>
-                <!--<li><a href="{{ url_for('vesti') }}#vesti">Vesti</a></li>-->
                 <li><a href="{{ url_for('najnovije') }}#vesti">Najnovije</a></li>
                 <li><a href="{{ url_for('lokalne_vesti') }}#vesti">Lokalne vesti</a></li>
                 <li><a href="{{ url_for('sport') }}#vesti">Sport</a></li>
                 <li><a href="{{ url_for('vremenska_prognoza') }}#vesti">Vremenska prognoza</a></li>
                 <li><a href="{{ url_for('kontakt') }}#vesti">Kontakt</a></li>
                 <li><a href="{{ url_for('ostavi_vest') }}#vesti">| Ostavi vest </a></li>
+                <li>
+                    <form action="{{ url_for('sve_vesti') }}" method="GET" class="search-form">
+                        <input type="text" name="search" placeholder="Pretraži vesti..." value="{{ request.args.get('search', '') }}">
+                        <button type="submit">Pretraži</button>
+                    </form>
+                </li>
             </ul>
-            
-            <!-- Forma za pretragu -->
-            <form action="{{ url_for('sve_vesti') }}" method="GET" class="search-form">
-                <input type="text" name="search" placeholder="Pretraži vesti..." value="{{ request.args.get('search', '') }}">
-                <button type="submit">Pretraži</button>
-            </form>
         </nav>
-    </br>
+        <br>
     </header>
 
-    
-    
+    <!-- Ovde ide sadržaj stranice -->
+
     <footer>
         <p>Preuzimanje i objavljivanje tekstova sa portala Radio Borzani Brezovica nije dozvoljeno bez navođenja izvora. Hvala na poštovanju etike novinarske profesije.</p>
     </footer>
+
+    <script>
+        function toggleMenu() {
+            const menu = document.getElementById("menuItems");
+            menu.classList.toggle("active");
+        }
+    </script>
 </body>
 </html>
