@@ -48,7 +48,9 @@ PASSWORD = "root"
 def allowed_file(filename, allowed_extensions):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in allowed_extensions
 
-
+@app.route('/')
+def home_redirect():
+    return render_template('sve_vesti.html')
 
 @app.route('/login', methods=['POST'])
 def login_post():
