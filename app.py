@@ -10,12 +10,18 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email import encoders
+from flask import session
+
+
+
+
 
 
 
 load_dotenv()
 
 app = Flask(__name__)
+app.secret_key = 'root'
 app.secret_key = os.getenv("SECRET_KEY") or '43214321'
 
 # Konfiguracija baze (promeni username/password/dbname po potrebi)
@@ -40,9 +46,7 @@ class Vest(db.Model):
     video = db.Column(db.PickleType)
     target_pages = db.Column(db.PickleType)
 
-# Login kredencijali
-USERNAME = "root"
-PASSWORD = "root"
+
 
 # Provera ekstenzije
 def allowed_file(filename, allowed_extensions):
@@ -53,17 +57,23 @@ def home_redirect():
     vesti = Vest.query.order_by(Vest.datum_vreme.desc()).all()
     return render_template('sve_vesti.html', vesti=vesti)
 
-@app.route('/login', methods=['POST'])
-def login_post():
-    username = request.form['username']
-    password = request.form['password']
-    if username == USERNAME and password == PASSWORD:
-        return redirect(url_for('dashboard'))
-    return "Pogrešno korisničko ime ili šifra."
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form['root']
+        password = request.form['root']
+        if username == USERNAME and password == PASSWORD:
+            session['logged_in'] = True
+            return redirect(url_for('dashboard'))
+        else:
+            return "Pogrešno korisničko ime ili šifra."
+    return render_template('login.html')
 
 @app.route('/dashboard')
-
 def dashboard():
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+    
     search_query = request.args.get('search', '').lower()
     if search_query:
         vesti = Vest.query.filter(
