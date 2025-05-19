@@ -42,42 +42,31 @@
             <!-- Najnovija vest -->
             <div class="najnovija-vest">
                 {% if vesti|length > 0 %}
-                    <div class="vest-kartica velika" style="background-image: url('{{ url_for('uploaded_file', filename=vesti[0].slike[0] if vesti[0].slike else 'placeholder.jpg') }}');">
-                        <a href="{{ url_for('prikazi_vest', id=0) }}" class="vest-link">
-                            <h2>{{ vesti[0].naslov }}</h2>
-                        </a>
-                    </div>
-                {% else %}
-                    <p>Nema dostupnih vesti.</p>
-                {% endif %}
-            </div>
-    
-            <!-- Ostale vesti -->
-            <div class="ostale-vesti">
-                {% if not search_query %}
-                    <!-- Prikazuje samo kada nije aktivna pretraga -->
-                    {% for vest in vesti[1:5]|reverse %}
-                        <div class="vest-kartica mala" style="background-image: url('{{ url_for('uploaded_file', filename=vest.slike[0] if vest.slike else 'placeholder.jpg') }}');">
-                            <a href="{{ url_for('prikazi_vest', id=loop.index) }}" class="vest-link">
-                                <h3>{{ vest.naslov }}</h3>
-                            </a>
-                        </div>
-                    {% endfor %}
-                {% endif %}
-            </div>
-    
-            <!-- Male kartice sa naslovima pored (ako pretraga nije aktivna) -->
-            {% if not search_query %}
-                <div class="male-kartice">
-                    {% for vest in vesti[5:25] %}
-                        <div class="kartica-sa-naslovom" style="background-image: url('{{ url_for('uploaded_file', filename=vest.slike[0] if vest.slike else 'placeholder.jpg') }}');">
-                            <a href="{{ url_for('prikazi_vest', id=loop.index) }}">
-                                <h3>{{ vest.naslov }}</h3>
-                            </a>
-                        </div>
-                    {% endfor %}
-                </div>
-            {% endif %}
+                    <!-- Najnovija vest -->
+<div class="vest-kartica velika" style="background-image: url('{{ url_for('uploaded_file', filename=vesti[0].slike[0] if vesti[0].slike else 'placeholder.jpg') }}');">
+    <a href="{{ url_for('prikazi_vest', id=vesti[0].id) }}" class="vest-link">
+        <h2>{{ vesti[0].naslov }}</h2>
+    </a>
+</div>
+
+<!-- Ostale vesti -->
+{% for vest in vesti[1:5]|reverse %}
+    <div class="vest-kartica mala" style="background-image: url('{{ url_for('uploaded_file', filename=vest.slike[0] if vest.slike else 'placeholder.jpg') }}');">
+        <a href="{{ url_for('prikazi_vest', id=vest.id) }}" class="vest-link">
+            <h3>{{ vest.naslov }}</h3>
+        </a>
+    </div>
+{% endfor %}
+
+<!-- Male kartice sa naslovima -->
+{% for vest in vesti[5:25] %}
+    <div class="kartica-sa-naslovom" style="background-image: url('{{ url_for('uploaded_file', filename=vest.slike[0] if vest.slike else 'placeholder.jpg') }}');">
+        <a href="{{ url_for('prikazi_vest', id=vest.id) }}">
+            <h3>{{ vest.naslov }}</h3>
+        </a>
+    </div>
+{% endfor %}
+
         </div>
 
         <!-- Prikazivanje filtriranih vesti kada je pretraga aktivna -->

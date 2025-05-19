@@ -1,5 +1,5 @@
 import os
-from flask import Flask, render_template, request, redirect, url_for, send_from_directory, flash
+from flask import Flask, render_template, request, redirect, url_for, send_from_directory, flash, session
 from werkzeug.utils import secure_filename
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
@@ -8,31 +8,24 @@ from dotenv import load_dotenv
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from email.mime.base import MIMEBase
-from email import encoders
-from flask import session
-
-
+from sqlalchemy import or_, and_, func  # ✅ Ispravni SQL funkcije
 
 load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY") or '43214321'
 
-# Konfiguracija baze (promeni username/password/dbname po potrebi)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///vesti.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
-# Upload folder i dozvoljeni formati
 app.config['UPLOAD_FOLDER'] = 'uploads'
 app.config['ALLOWED_IMAGE_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'gif'}
 app.config['ALLOWED_VIDEO_EXTENSIONS'] = {'mp4', 'mov', 'avi'}
 
-# Model za vest
 class Vest(db.Model):
-    __tablename__ = 'vest'   # baš da tabela bude 'vest'
+    __tablename__ = 'vest'
     id = db.Column(db.Integer, primary_key=True)
     naslov = db.Column(db.String(200), nullable=False)
     sadrzaj = db.Column(db.Text, nullable=False)
@@ -41,9 +34,6 @@ class Vest(db.Model):
     video = db.Column(db.PickleType)
     target_pages = db.Column(db.PickleType)
 
-
-
-# Provera ekstenzije
 def allowed_file(filename, allowed_extensions):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in allowed_extensions
 
@@ -58,7 +48,7 @@ PASSWORD = 'root'
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        username = request.form['username']   # obrati pažnju na imena polja
+        username = request.form['username']
         password = request.form['password']
         if username == USERNAME and password == PASSWORD:
             session['logged_in'] = True
@@ -72,13 +62,13 @@ def login():
 def dashboard():
     if not session.get('logged_in'):
         return redirect(url_for('login'))
-    
+
     search_query = request.args.get('search', '').lower()
     if search_query:
         vesti = Vest.query.filter(
-            db.or_(
-                db.func.lower(Vest.naslov).contains(search_query),
-                db.func.lower(Vest.sadrzaj).contains(search_query)
+            or_(
+                func.lower(Vest.naslov).contains(search_query),
+                func.lower(Vest.sadrzaj).contains(search_query)
             )
         ).order_by(Vest.datum_vreme.desc()).all()
     else:
@@ -91,7 +81,7 @@ def postavi_vest():
         naslov = request.form['naslov']
         sadrzaj = request.form['sadrzaj']
         target_pages = request.form.getlist('target_pages')
-        datum_vreme = datetime.now().strftime('%Y-%m-%dT%H:%M')
+        datum_vreme = request.form['datum_vreme']  # uzimamo iz forme!
 
         slike_paths = []
         for slika in request.files.getlist('slike'):
@@ -124,22 +114,12 @@ def postavi_vest():
 
     return render_template('postavi_vest.html')
 
-@app.route('/BorzaniOnline')
+@app.route('/sve_vesti')
 def sve_vesti():
-    search_query = request.args.get('search', '').lower()
-    if search_query:
-        vesti = Vest.query.filter(
-            db.and_(
-                db.or_(
-                    db.func.lower(Vest.naslov).contains(search_query),
-                    db.func.lower(Vest.sadrzaj).contains(search_query)
-                ),
-                Vest.target_pages.contains(['Naslovna'])
-            )
-        ).order_by(Vest.datum_vreme.desc()).all()
-    else:
-        vesti = Vest.query.filter(Vest.target_pages.contains(['Naslovna'])).order_by(Vest.datum_vreme.desc()).all()
-    return render_template('sve_vesti.html', vesti=vesti)
+    vesti_sve = Vest.query.order_by(Vest.datum_vreme.desc()).all()
+    dozvoljene_stranice = ["Naslovna", "Vesti"]
+    vesti = [v for v in vesti_sve if any(page in v.target_pages for page in dozvoljene_stranice)]
+    return render_template('sve_vesti.html', vesti=vesti, search_query=None)
 
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
@@ -150,7 +130,7 @@ def prikazi_vest(id):
     vest = Vest.query.get_or_404(id)
     return render_template('prikazi_vest.html', vest=vest)
 
-@app.route('/delete_vest/<int:id>')
+@app.route('/delete_vest/<int:id>', methods=['POST'])
 def delete_vest(id):
     vest = Vest.query.get_or_404(id)
     db.session.delete(vest)
@@ -167,22 +147,19 @@ def edit_vest(id):
         return redirect(url_for('dashboard'))
     return render_template('edit_vest.html', vest=vest)
 
-
 @app.route('/vesti')
 def vesti():
     search_query = request.args.get('search', '').lower()
     if search_query:
         vesti = Vest.query.filter(
-            db.or_(
-                db.func.lower(Vest.naslov).contains(search_query),
-                db.func.lower(Vest.sadrzaj).contains(search_query)
+            or_(
+                func.lower(Vest.naslov).contains(search_query),
+                func.lower(Vest.sadrzaj).contains(search_query)
             )
         ).order_by(Vest.datum_vreme.desc()).all()
     else:
         vesti = Vest.query.filter(Vest.target_pages.contains(['vesti'])).order_by(Vest.datum_vreme.desc()).all()
     return render_template('vesti.html', vesti=vesti)
-
-
 
 @app.route('/najnovije')
 def najnovije():
@@ -199,10 +176,10 @@ def sport():
     search_query = request.args.get('search', '').lower()
     if search_query:
         vesti = Vest.query.filter(
-            db.and_(
-                db.or_(
-                    db.func.lower(Vest.naslov).contains(search_query),
-                    db.func.lower(Vest.sadrzaj).contains(search_query)
+            and_(
+                or_(
+                    func.lower(Vest.naslov).contains(search_query),
+                    func.lower(Vest.sadrzaj).contains(search_query)
                 ),
                 Vest.target_pages.contains(['sport'])
             )
@@ -216,10 +193,10 @@ def vremenska_prognoza():
     search_query = request.args.get('search', '').lower()
     if search_query:
         vesti = Vest.query.filter(
-            db.and_(
-                db.or_(
-                    db.func.lower(Vest.naslov).contains(search_query),
-                    db.func.lower(Vest.sadrzaj).contains(search_query)
+            and_(
+                or_(
+                    func.lower(Vest.naslov).contains(search_query),
+                    func.lower(Vest.sadrzaj).contains(search_query)
                 ),
                 Vest.target_pages.contains(['vremenska'])
             )
@@ -243,10 +220,9 @@ def ostavi_vest():
             ime = "Anonimni korisnik"
 
         try:
-            # Direktno upiši svoje email adrese i lozinku ovde:
-            from_addr = "dstanisavljevic579@gmail.com"            # odakle šalješ
-            to_addr = "stanisavljevic30@icloud.com"            # kome šalješ
-            password = "acmi ojiz pnxi dueu"   # lozinka ili app password
+            from_addr = "dstanisavljevic579@gmail.com"
+            to_addr = "stanisavljevic30@icloud.com"
+            password = "acmi ojiz pnxi dueu"
 
             subject = "Nova vest od čitaoca"
             body = f"Ime: {ime}\n\nTekst vesti:\n{tekst}"
@@ -269,12 +245,10 @@ def ostavi_vest():
 
         return redirect(url_for('ostavi_vest'))
 
-    # Ako je GET metoda, samo prikaži formu
     return render_template('ostavi_vest.html')
-
 
 if __name__ == '__main__':
     print("Pokrećem Flask server...")
     with app.app_context():
         db.create_all()
-    app.run(debug=True)  
+    app.run(debug=True)

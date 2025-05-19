@@ -49,8 +49,10 @@
                     {% endif %}
                     
                     <div class="vest-opcije">
-                        <a href="{{ url_for('edit_vest', id=loop.index0) }}" class="btn btn-blue">Izmeni vest</a> | 
-                        <a href="{{ url_for('delete_vest', id=loop.index0) }}" class="btn btn-blue">Obriši vest</a>
+                        <a href="{{ url_for('edit_vest', id=vest.id) }}" class="btn btn-blue">Izmeni vest</a> | 
+                        <form action="{{ url_for('delete_vest', id=vest.id) }}" method="POST" onsubmit="return confirm('Da li ste sigurni da želite da obrišete ovu vest?');">
+    <button type="submit">Obriši vest</button>
+</form>
                     </div>
                     <hr>
                 </div>

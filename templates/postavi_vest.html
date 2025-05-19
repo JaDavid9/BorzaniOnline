@@ -1,10 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="sr">
 <head>
     <meta charset="UTF-8">
     <title>Postavite Vest</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-   
 </head>
 <body>
     <div class="container">
@@ -12,66 +11,78 @@
         <form action="{{ url_for('postavi_vest') }}" method="POST" enctype="multipart/form-data">
             <label for="naslov">Naslov:</label>
             <input type="text" id="naslov" name="naslov" required>
-        
-            <br> <label for="sadrzaj">Sadržaj:</label> </br>
-            <textarea id="sadrzaj" name="sadrzaj" required></textarea>
-        
-           <br> <label for="slike">Slike:</label> </br>
-            <br> <div id="image-fields">
+
+            <br><br>
+
+            <label for="sadrzaj">Sadržaj:</label><br>
+            <textarea id="sadrzaj" name="sadrzaj" rows="6" cols="40" required></textarea>
+
+            <br><br>
+
+            <label for="slike">Slike:</label><br>
+            <div id="image-fields">
                 <input type="file" name="slike" accept="image/*">
-            </div> </br>
+            </div>
             <button type="button" onclick="addImageField()">Dodaj još sliku</button>
-        
-            <br> <label for="video">Video:</label> </br>
-            <br> <div id="video-fields">
+
+            <br><br>
+
+            <label for="video">Video:</label><br>
+            <div id="video-fields">
                 <input type="file" name="video" accept="video/*">
-            </div> </br>
-            <br> <button type="button" onclick="addVideoField()">Dodaj još video</button> </br> 
-        
-            <br> <label for="datum-vreme">Datum i vreme objave:</label> </br>
-            <br> <input type="datetime-local" id="datum-vreme" name="datum_vreme" required> </br>
-        
-            <br> <label for="target_pages">Izbor stranica:</label><br> </br> 
-            <input type="checkbox" name="target_pages" value="Naslovna">
+            </div>
+            <button type="button" onclick="addVideoField()">Dodaj još video</button>
+
+            <br><br>
+
+            <label for="datum-vreme">Datum i vreme objave:</label><br>
+            <input type="datetime-local" id="datum-vreme" name="datum_vreme" required>
+
+            <br><br>
+
+            <label>Izbor stranica:</label><br>
+            <input type="checkbox" id="naslovna" name="target_pages" value="Naslovna">
             <label for="naslovna">Naslovna</label><br>
 
-            <input type="checkbox" name="target_pages" value="Vesti">
+            <input type="checkbox" id="vesti" name="target_pages" value="Vesti">
             <label for="vesti">Vesti</label><br>
 
-            <input type="checkbox" name="target_pages" value="Najnovije">
+            <input type="checkbox" id="najnovije" name="target_pages" value="Najnovije">
             <label for="najnovije">Najnovije</label><br>
 
-            <input type="checkbox" name="target_pages" value="Lokalne vesti">
+            <input type="checkbox" id="lokalne_vesti" name="target_pages" value="Lokalne vesti">
             <label for="lokalne_vesti">Lokalne vesti</label><br>
 
-            <input type="checkbox" name="target_pages" value="Sport">
+            <input type="checkbox" id="sport" name="target_pages" value="Sport">
             <label for="sport">Sport</label><br>
 
-            <input type="checkbox" name="target_pages" value="Vremenska prognoza">
-            <label for="vremenska_prognoza">Vremenska Prognoza</label><br>
-        
-            <br> <button type="submit">Postavi vest</button> </br> 
+            <input type="checkbox" id="vremenska_prognoza" name="target_pages" value="Vremenska prognoza">
+            <label for="vremenska_prognoza">Vremenska prognoza</label><br>
+
+            <br>
+
+            <button type="submit">Postavi vest</button>
         </form>
-        
+
         <script>
             function addImageField() {
                 const container = document.getElementById('image-fields');
                 const newField = document.createElement('input');
                 newField.type = 'file';
-                newField.name = 'slike';
+                newField.name = 'slike';  // važno: svi inputi za slike imaju isti name
                 newField.accept = 'image/*';
                 container.appendChild(newField);
             }
-        
+
             function addVideoField() {
                 const container = document.getElementById('video-fields');
                 const newField = document.createElement('input');
                 newField.type = 'file';
-                newField.name = 'video';
+                newField.name = 'video';  // svi inputi za video imaju isti name
                 newField.accept = 'video/*';
                 container.appendChild(newField);
             }
-        
+
             document.querySelector('form').addEventListener('submit', function (e) {
                 const checkboxes = document.querySelectorAll('input[name="target_pages"]:checked');
                 if (checkboxes.length === 0) {

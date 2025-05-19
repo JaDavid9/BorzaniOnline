@@ -1,19 +1,23 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="sr">
 <head>
     <meta charset="UTF-8">
-    <title>Editovanje vesti</title>
+    <title>Izmeni Vest</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
 </head>
 <body>
-    <h2>Izmeni Vest</h2>
-    <form method="POST">
-        <label for="naslov">Naslov:</label><br>
-        <input type="text" name="naslov" value="{{ vest.naslov }}" required><br><br>
-        
-        <label for="sadrzaj">Sadržaj:</label><br>
-        <textarea name="sadrzaj" required>{{ vest.sadrzaj }}</textarea><br><br>
+    <div class="container">
+        <h1>Izmeni Vest</h1>
+        <form method="POST">
+            <label for="naslov">Naslov:</label><br>
+            <input type="text" id="naslov" name="naslov" value="{{ vest.naslov }}" required><br><br>
 
-        <input type="submit" value="Potvrdi">
-    </form>
+            <label for="sadrzaj">Sadržaj:</label><br>
+            <textarea id="sadrzaj" name="sadrzaj" rows="10" cols="50" required>{{ vest.sadrzaj }}</textarea><br><br>
+
+            <button type="submit" class="btn btn-blue">Sačuvaj izmene</button>
+            <a href="{{ url_for('dashboard') }}" class="btn btn-blue">Otkaži</a>
+        </form>
+    </div>
 </body>
 </html>
