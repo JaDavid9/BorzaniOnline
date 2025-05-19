@@ -14,14 +14,9 @@ from flask import session
 
 
 
-
-
-
-
 load_dotenv()
 
 app = Flask(__name__)
-app.secret_key = 'root'
 app.secret_key = os.getenv("SECRET_KEY") or '43214321'
 
 # Konfiguracija baze (promeni username/password/dbname po potrebi)
