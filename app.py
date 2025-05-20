@@ -42,8 +42,8 @@ def home_redirect():
     vesti = Vest.query.order_by(Vest.datum_vreme.desc()).all()
     return render_template('sve_vesti.html', vesti=vesti)
 
-USERNAME = 'root'
-PASSWORD = 'root'
+USERNAME = 'borzani2000'
+PASSWORD = 'bOrzani2000brezOvica'
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -246,9 +246,9 @@ def ostavi_vest():
             ime = "Anonimni korisnik"
 
         try:
-            from_addr = "dstanisavljevic579@gmail.com"
-            to_addr = "stanisavljevic30@icloud.com"
-            password = "acmi ojiz pnxi dueu"
+            from_addr = "borzaniradio@gmail.com"
+            to_addr = "radioborzanibrezovica@gmail.com"
+            password = "umay uyft kcgg piqq"
 
             subject = "Nova vest od čitaoca"
             body = f"Ime: {ime}\n\nTekst vesti:\n{tekst}"
